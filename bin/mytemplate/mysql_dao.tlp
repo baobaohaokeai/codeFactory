@@ -1,0 +1,33 @@
+package {DaoPackage};
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.annotation.Resource;
+
+import org.roof.report.crm.entity.CrmCondition;
+import {EntityPackage}.{EntityName};
+import {IDaoPackage}.{IDaoName};
+import org.roof.roof.dataaccess.api.IDaoSupport;
+import org.springframework.stereotype.Repository;
+
+@Repository
+public class {DaoName} implements {IDaoName}{
+	@Resource(name="roofDaoSupport")
+	private IDaoSupport daoSupport;
+	
+	public  List<{EntityName}> get(CrmCondition con){
+		Map<String, Object> param = new HashMap<String, Object>();
+		param.put("startTime", con.getStartTime());
+		param.put("endTime", con.getEndTime());
+		//more params to put
+		//xxxxx
+
+		@SuppressWarnings("unchecked")
+		List<{EntityName}> report = (List<{EntityName}>) daoSupport
+				.selectForList("{DaoPackage}.get", param);
+		return report;
+	}
+	
+}

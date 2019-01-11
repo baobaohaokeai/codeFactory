@@ -1,0 +1,14 @@
+
+package {IServicePackage};
+
+import java.util.List;
+
+import org.roof.report.crm.entity.CrmCondition;
+import {EntityPackage}.{EntityName};
+
+
+public interface {IServiceName} {
+
+	public  List<{EntityName}> get(CrmCondition condition);
+	
+}

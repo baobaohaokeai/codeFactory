@@ -1,0 +1,1078 @@
+package com.yisin.cf.form;
+
+import java.awt.Color;
+import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Vector;
+
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
+import javax.swing.JFileChooser;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JScrollBar;
+import javax.swing.JScrollPane;
+import javax.swing.JTextField;
+import javax.swing.JTree;
+import javax.swing.event.TreeSelectionEvent;
+import javax.swing.event.TreeSelectionListener;
+import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.TreePath;
+
+import org.omg.CORBA.CTX_RESTRICT_SCOPE;
+
+import com.yisin.cf.db.DBHelper;
+import com.yisin.cf.db.DbCache;
+import com.yisin.cf.entity.CreAttr;
+import com.yisin.cf.entity.DbTable;
+import com.yisin.cf.entity.DbTableColumn;
+import com.yisin.cf.entity.MysqlDbColumn;
+import com.yisin.cf.main.CreateThread;
+import com.yisin.cf.util.CommonUtils;
+import com.yisin.cf.util.IniReader;
+import com.yisin.cf.util.Utililies;
+
+@SuppressWarnings("serial")
+public class MainForm extends BasePanel {
+
+	private int width = 900;
+	private int height = 600;
+	private boolean configInited = false;
+	private boolean loadding = false;
+	private String config_section = "create_config_info";
+
+	private static JTree tree = null;
+	private DefaultMutableTreeNode dbNode;
+	private JScrollPane jScrollPane1;
+	public static Map<String, Vector<Object>> columnMap = new HashMap<String, Vector<Object>>();
+
+	public MainForm() {
+		this.setBackground(Color.white);
+		this.setLayout(null);
+		initTreeThread(1);
+		initCompant();
+	}
+
+	public MainForm(int width, int height) {
+		this.width = width;
+		this.height = height;
+		this.setBackground(Color.white);
+		this.setLayout(null);
+		initTreeThread(1);
+		initCompant();
+	}
+
+	public List<DbTable> getDbTable() {
+		DBHelper.initDbConfig();
+		List<DbTable> list = DBHelper.getDbTables(DBHelper.schema);
+		return list;
+	}
+
+	public List<?> getTableColumn(String table) {
+		DBHelper.initDbConfig();
+		if (DBHelper.sections.equals(MySqlSetPanel.sections)) {
+			return DBHelper.getTableColumns(DBHelper.schema, table);
+		}
+		return null;
+	}
+
+	public Map<String, List<DbTableColumn>> getTableColumn() {
+		DBHelper.initDbConfig();
+		if (DBHelper.sections.equals(MySqlSetPanel.sections)) {
+			return DBHelper.getMutilTableColumns(DBHelper.schema);
+		}
+		return null;
+	}
+
+	private JTextField entityNameText;
+	private JTextField entityNameText2;//自定义的实体类表格
+	private JCheckBox packageBox;//自动修改包名称
+	private JTextField entPackageText;
+	private JTextField daoPackageText;
+	private JTextField serPackageText;
+	private JTextField mapPackageText;
+	private JTextField hbmPackageText;
+	private JTextField cotPackageText;
+	private JTextField actPackageText;
+	private JComboBox<Object> dbFrameCombo;
+	private JComboBox<Object> cFrameCombo;
+	private JCheckBox daoBox;
+	private JCheckBox serviceBox;
+	private JCheckBox apiImplBox;//是否生成api/impl路径
+	private JCheckBox webBox;//是否生成web页面
+	private JCheckBox mapBox;
+	private JCheckBox hbmBox;
+	private JCheckBox actionBox;
+	private JCheckBox controllerBox;
+	private JLabel perview1;
+	private JLabel perview2;
+	private JLabel perview3;
+
+	private JButton seekTableDataBtn;
+	private JButton singleCreateBtn;
+	private JButton mutilCreateBtn;
+	private JButton chooseDirBtn;
+	private JButton chooseDirBtn3;
+	private JButton customBtn;//自定义表
+
+	private JComboBox<Object> cigCombo;
+	private JButton saveBtn;
+	private JButton newSaveBtn;
+	private String chooseTable = null;
+	
+	JFileChooser jfc = new JFileChooser();// 文件选择器  
+	private JTextField saveDirText;
+	private JTextField saveDirText3;
+
+	public void initCompant() {
+		int left = 300, labelWidth = 55, labelTextHeight = 25, top = 60, textWidth = 130;
+
+		// 按钮层
+		seekTableDataBtn = new JButton("查看表数据");
+		seekTableDataBtn.setBounds(left, 5, textWidth, labelTextHeight);
+		add(seekTableDataBtn);
+		seekTableDataBtn.setEnabled(false);
+
+		mutilCreateBtn = new JButton("生成全部表");
+		mutilCreateBtn.setBounds(left + textWidth + 10, 5, textWidth, labelTextHeight);
+		add(mutilCreateBtn);
+		mutilCreateBtn.setEnabled(false);
+
+		singleCreateBtn = new JButton("生成选择的表");
+		singleCreateBtn.setBounds(left + (textWidth + 10) * 2, 5, textWidth, labelTextHeight);
+		add(singleCreateBtn);
+		singleCreateBtn.setEnabled(false);
+		
+		customBtn = new JButton("生成自定义表");
+		customBtn.setBounds(left + (textWidth + 10) * 3, 5, textWidth, labelTextHeight);
+		add(customBtn);
+//		customBtn.setEnabled(true);
+
+		//
+		JLabel cigLabel = new JLabel("配置方案");
+		cigLabel.setBounds(left + labelWidth, labelTextHeight + 20, labelWidth, labelTextHeight);
+		add(cigLabel);
+		cigCombo = new JComboBox<Object>();
+		cigCombo.setName("cigCombo");
+		cigCombo.setBounds(left + (labelWidth + 10) * 2, labelTextHeight + 20, textWidth, labelTextHeight);
+		add(cigCombo);
+
+		saveBtn = new JButton("保存");
+		saveBtn.setBounds(left + (labelWidth + 10) * 2 + textWidth + 50, labelTextHeight + 20, textWidth - 60,
+				labelTextHeight);
+		add(saveBtn);
+
+		newSaveBtn = new JButton("另存为");
+		newSaveBtn.setBounds(left + (labelWidth + 10) * 2 + textWidth * 2, labelTextHeight + 20, textWidth - 60,
+				labelTextHeight);
+		add(newSaveBtn);
+
+		// 持久层 111111
+		JLabel dbFrameLabel = new JLabel("持久层");
+		dbFrameLabel.setBounds(left, top + ((labelTextHeight + 10) * 1), labelWidth, labelTextHeight);
+		add(dbFrameLabel);
+		dbFrameCombo = new JComboBox<Object>(new Object[] { "Mybatis", "Hibernate" });
+		dbFrameCombo.setBounds(left + labelWidth, top + ((labelTextHeight + 10) * 1), textWidth, labelTextHeight);
+		add(dbFrameCombo);
+		
+		/*自定义实体类,数据库没有对应表*/
+		JLabel entityNameLabel2 = new JLabel("自定义实体类");
+		entityNameLabel2.setBounds(left+ labelWidth + textWidth + 10, top + ((labelTextHeight + 10) * 1), labelWidth+30, labelTextHeight);
+		add(entityNameLabel2);
+		entityNameText2 = new JTextField("");
+		entityNameText2.setName("entity2");
+		entityNameText2.setEditable(true);
+		entityNameText2.setBounds(left + labelWidth * 2  + textWidth + 10 + 30, top + ((labelTextHeight + 10) * 1), textWidth, labelTextHeight);
+		add(entityNameText2);
+		
+		packageBox = new JCheckBox("同步修改包路径");
+		packageBox.setBounds(left + labelWidth * 2  + textWidth*2 + 10+ 30+10, top + ((labelTextHeight + 10) * 1), textWidth, labelTextHeight);
+		packageBox.setSelected(true);
+		add(packageBox);
+
+		// 实体类 2222
+		JLabel entityNameLabel = new JLabel("实体类");
+		entityNameLabel.setBounds(left, top + ((labelTextHeight + 10) * 2), labelWidth, labelTextHeight);
+		add(entityNameLabel);
+		entityNameText = new JTextField("");
+		entityNameText.setName("entity");
+		entityNameText.setEditable(false);
+		entityNameText.setBounds(left + labelWidth, top + ((labelTextHeight + 10) * 2), textWidth, labelTextHeight);
+		add(entityNameText);
+
+		JLabel packageLabel = new JLabel("包路径");
+		packageLabel.setBounds(left + labelWidth + textWidth + 10, top + ((labelTextHeight + 10) * 2), labelWidth,
+				labelTextHeight);
+		add(packageLabel);
+		entPackageText = new JTextField("");
+		entPackageText.setName("entityPackage");
+		entPackageText.setBounds(left + labelWidth * 2 + textWidth + 10, top + ((labelTextHeight + 10) * 2),
+				textWidth * 2, labelTextHeight);
+		add(entPackageText);
+
+		// Dao类 3333
+		daoBox = new JCheckBox("生成Dao接口/类");
+		daoBox.setBounds(left + labelWidth, top + ((labelTextHeight + 10) * 3), textWidth, labelTextHeight);
+		add(daoBox);
+		daoBox.setSelected(true);
+
+		JLabel packageLabel2 = new JLabel("包路径");
+		packageLabel2.setBounds(left + labelWidth + textWidth + 10, top + ((labelTextHeight + 10) * 3), labelWidth,
+				labelTextHeight);
+		add(packageLabel2);
+		daoPackageText = new JTextField("");
+		daoPackageText.setName("daoPackage");
+		daoPackageText.setBounds(left + labelWidth * 2 + textWidth + 10, top + ((labelTextHeight + 10) * 3),
+				textWidth * 2, labelTextHeight);
+		add(daoPackageText);
+
+		//////////////////
+		mapBox = new JCheckBox("生成Mapper.xml");
+		mapBox.setBounds(left + labelWidth, top + ((labelTextHeight + 10) * 4), textWidth, labelTextHeight);
+		add(mapBox);
+		mapBox.setSelected(true);
+
+		hbmBox = new JCheckBox("生成Hbm.xml");
+		hbmBox.setBounds(left + labelWidth, top + ((labelTextHeight + 10) * 4), textWidth, labelTextHeight);
+		add(hbmBox);
+		hbmBox.setVisible(false);
+
+		JLabel packageLabel3 = new JLabel("包路径");
+		packageLabel3.setBounds(left + labelWidth + textWidth + 10, top + ((labelTextHeight + 10) * 4), labelWidth,
+				labelTextHeight);
+		add(packageLabel3);
+		mapPackageText = new JTextField("");
+		mapPackageText.setName("mapPackage");
+		mapPackageText.setBounds(left + labelWidth * 2 + textWidth + 10, top + ((labelTextHeight + 10) * 4),
+				textWidth * 2, labelTextHeight);
+		add(mapPackageText);
+		hbmPackageText = new JTextField("");
+		hbmPackageText.setName("hbmPackage");
+		hbmPackageText.setBounds(left + labelWidth * 2 + textWidth + 10, top + ((labelTextHeight + 10) * 4),
+				textWidth * 2, labelTextHeight);
+		add(hbmPackageText);
+		hbmPackageText.setVisible(false);
+
+		///////////
+		serviceBox = new JCheckBox("生成Service接口/类");
+		serviceBox.setBounds(left + labelWidth, top + ((labelTextHeight + 10) * 5), textWidth, labelTextHeight);
+		add(serviceBox);
+		serviceBox.setSelected(true);
+
+		JLabel packageLabel5 = new JLabel("包路径");
+		packageLabel5.setBounds(left + labelWidth + textWidth + 10, top + ((labelTextHeight + 10) * 5), labelWidth,
+				labelTextHeight);
+		add(packageLabel5);
+		serPackageText = new JTextField("");
+		serPackageText.setName("serPackage");
+		serPackageText.setBounds(left + labelWidth * 2 + textWidth + 10, top + ((labelTextHeight + 10) * 5),
+				textWidth * 2, labelTextHeight);
+		add(serPackageText);
+		
+		apiImplBox = new JCheckBox("生成api/impl路径");
+		apiImplBox.setBounds(left + labelWidth, top + ((labelTextHeight + 10) * 6), textWidth, labelTextHeight);
+		apiImplBox.setSelected(false);
+		add(apiImplBox);
+		
+		webBox = new JCheckBox("生成web页面");
+		webBox.setBounds(left + labelWidth +textWidth+10, top + ((labelTextHeight + 10) * 6), textWidth, labelTextHeight);
+		webBox.setSelected(true);
+		add(webBox);
+
+		perview1 = new JLabel("");
+		perview1.setBounds(left + labelWidth, top + ((labelTextHeight + 10) * 2), textWidth * 3, labelTextHeight);
+		perview1.setForeground(Color.BLUE);
+		add(perview1);
+
+		//////////////////
+		JLabel cFrameLabel = new JLabel("控制层");
+		cFrameLabel.setBounds(left, top + ((labelTextHeight + 10) * 7), labelWidth, labelTextHeight);
+		add(cFrameLabel);
+		cFrameCombo = new JComboBox<Object>(new Object[] { "SpringMVC", "Struts2" });
+		cFrameCombo.setBounds(left + labelWidth, top + ((labelTextHeight + 10) * 7), textWidth, labelTextHeight);
+		add(cFrameCombo);
+
+		// action
+		controllerBox = new JCheckBox("生成Controller类");
+		controllerBox.setBounds(left + labelWidth, top + ((labelTextHeight + 10) * 8), textWidth, labelTextHeight);
+		add(controllerBox);
+		controllerBox.setSelected(true);
+
+		actionBox = new JCheckBox("生成Action类");
+		actionBox.setBounds(left + labelWidth, top + ((labelTextHeight + 10) * 8), textWidth, labelTextHeight);
+		add(actionBox);
+		actionBox.setVisible(false);
+
+		JLabel packageLabel7 = new JLabel("包路径");
+		packageLabel7.setBounds(left + labelWidth + textWidth + 10, top + ((labelTextHeight + 10) * 8), labelWidth,
+				labelTextHeight);
+		add(packageLabel7);
+		cotPackageText = new JTextField("");
+		cotPackageText.setName("cotPackage");
+		cotPackageText.setBounds(left + labelWidth * 2 + textWidth + 10, top + ((labelTextHeight + 10) * 8),
+				textWidth * 2, labelTextHeight);
+		add(cotPackageText);
+		actPackageText = new JTextField("");
+		actPackageText.setName("actPackage");
+		actPackageText.setBounds(left + labelWidth * 2 + textWidth + 10, top + ((labelTextHeight + 10) * 8),
+				textWidth * 2, labelTextHeight);
+		add(actPackageText);
+		actPackageText.setVisible(false);
+
+		perview2 = new JLabel("src路径");
+		perview2.setBounds(left, top + ((labelTextHeight + 10) * 10), labelWidth, labelTextHeight);
+		add(perview2);
+		
+		saveDirText = new JTextField("d:/");
+		saveDirText.setName("saveDirText");
+		saveDirText.setBounds(left + labelWidth, top + ((labelTextHeight + 10) * 10), textWidth * 3 - 50, labelTextHeight);
+		saveDirText.setEditable(false);
+		add(saveDirText);
+		
+		chooseDirBtn = new JButton("选择src位置");
+		chooseDirBtn.setBounds(left + labelWidth + textWidth * 3 - 40, top + ((labelTextHeight + 10) * 10), textWidth, labelTextHeight);
+		add(chooseDirBtn);
+		
+		/*增加web页面保存位置*/
+		perview3 = new JLabel("web路径");
+		perview3.setBounds(left, top + ((labelTextHeight + 10) * 11), labelWidth, labelTextHeight);
+		add(perview3);
+		
+		saveDirText3 = new JTextField("d:/");
+		saveDirText3.setName("saveDirText3");
+		saveDirText3.setBounds(left + labelWidth, top + ((labelTextHeight + 10) * 11), textWidth * 3 - 50, labelTextHeight);
+		saveDirText3.setEditable(false);
+		add(saveDirText3);
+		
+		chooseDirBtn3 = new JButton("选择web页面位置");
+		chooseDirBtn3.setBounds(left + labelWidth + textWidth * 3 - 40, top + ((labelTextHeight + 10) * 11), textWidth, labelTextHeight);
+		add(chooseDirBtn3);
+		
+		chooseDirBtn.addActionListener(new BtnActionListener());
+		//add
+		chooseDirBtn3.addActionListener(new BtnActionListener());
+		
+		dbFrameCombo.addItemListener(new ComboItemListener());
+		cFrameCombo.addItemListener(new ComboItemListener());
+		cigCombo.addItemListener(new ComboItemListener());
+
+		//add
+		entityNameText2.addKeyListener(new InputKeyListener());
+		
+		entPackageText.addKeyListener(new InputKeyListener());
+		daoPackageText.addKeyListener(new InputKeyListener());
+		serPackageText.addKeyListener(new InputKeyListener());
+		mapPackageText.addKeyListener(new InputKeyListener());
+		actPackageText.addKeyListener(new InputKeyListener());
+
+		packageBox.addActionListener(new BoxActionListener());
+		apiImplBox.addActionListener(new BoxActionListener());
+		webBox.addActionListener(new BoxActionListener());
+		daoBox.addActionListener(new BoxActionListener());
+		serviceBox.addActionListener(new BoxActionListener());
+		mapBox.addActionListener(new BoxActionListener());
+		hbmBox.addActionListener(new BoxActionListener());
+		controllerBox.addActionListener(new BoxActionListener());
+		actionBox.addActionListener(new BoxActionListener());
+
+		seekTableDataBtn.addActionListener(new BtnActionListener());
+		singleCreateBtn.addActionListener(new BtnActionListener());
+		customBtn.addActionListener(new BtnActionListener());
+		mutilCreateBtn.addActionListener(new BtnActionListener());
+		saveBtn.addActionListener(new BtnActionListener());
+		newSaveBtn.addActionListener(new BtnActionListener());
+
+		configInited = false;
+		initCombo();
+	}
+
+	public void initCombo() {
+		IniReader reader = IniReader.getIniReader();
+		HashMap<String, HashMap<String, String>> configMap = reader.getConfig(config_section);
+		if (configMap != null) {
+			cigCombo.removeAllItems();
+			String ise = null;
+			HashMap<String, String> cfg = null;
+			int index = 0, currIndex = 0;
+			for (Map.Entry<String, HashMap<String, String>> entity : configMap.entrySet()) {
+				cigCombo.addItem(entity.getKey());
+				cfg = entity.getValue();
+				if (cfg != null) {
+					ise = cfg.get("isSelected");
+					if (ise.equals("true")) {
+						currIndex = index;
+					}
+				}
+				index++;
+			}
+			configInited = true;
+			if (cigCombo.getItemCount() > currIndex) {
+				cigCombo.setSelectedIndex(currIndex);
+			}
+			if(cigCombo.getItemCount() == 0){
+			    cigCombo.addItem("Config 1");
+			    cigCombo.setSelectedIndex(0);
+			}
+		} else {
+		    if(cigCombo.getItemCount() == 0){
+                cigCombo.addItem("Config 1");
+                cigCombo.setSelectedIndex(0);
+            }
+		}
+	}
+
+	public void initValue(HashMap<String, String> viewCig) {
+		if (viewCig != null) {
+			try {
+				if (viewCig.get("dao_frame").equals("Mybatis")) {
+					dbFrameCombo.setSelectedIndex(0);
+				} else {
+					dbFrameCombo.setSelectedIndex(1);
+				}
+				if (viewCig.get("controll_frame").equals("SpringMVC")) {
+					cFrameCombo.setSelectedIndex(0);
+				} else {
+					cFrameCombo.setSelectedIndex(1);
+				}
+				daoPackageText.setText(viewCig.get("dao_package"));
+				serPackageText.setText(viewCig.get("service_package"));
+				entPackageText.setText(viewCig.get("entity_package"));
+				mapPackageText.setText(viewCig.get("map_package"));
+				hbmPackageText.setText(viewCig.get("hbm_package"));
+				cotPackageText.setText(viewCig.get("controller_package"));
+				actPackageText.setText(viewCig.get("action_package"));
+				saveDirText.setText(viewCig.get("save_dir"));
+				saveDirText3.setText(viewCig.get("save_dir3"));
+			} catch (Exception e) {
+				Toolkit.getDefaultToolkit().beep();
+				JOptionPane.showMessageDialog(null, "操作异常：" + e.getMessage(), "提示", JOptionPane.ERROR_MESSAGE);
+			}
+		}
+	}
+
+	public void saveConfig(int flag) {
+		try {
+			IniReader reader = IniReader.getIniReader();
+			String tag = "";
+			int index = cigCombo.getSelectedIndex();
+			if (flag == 2) { // 另存为
+				index = cigCombo.getItemCount() + 1;
+				tag = "Config " + index;
+				cigCombo.addItem(tag);
+				configInited = false;
+				cigCombo.setSelectedIndex(index - 1);
+				configInited = true;
+				reader.putValue(config_section, tag, "isSelected", "true");
+			} else {
+				tag = cigCombo.getSelectedItem().toString();
+			}
+			reader.putValue(config_section, tag, "if_modify_package", packageBox.isSelected() ? "true" : "false");
+			reader.putValue(config_section, tag, "if_create_apiImpl", apiImplBox.isSelected() ? "true" : "false");
+			reader.putValue(config_section, tag, "if_create_web", webBox.isSelected() ? "true" : "false");
+			reader.putValue(config_section, tag, "if_create_dao", daoBox.isSelected() ? "true" : "false");
+			reader.putValue(config_section, tag, "if_create_map", mapBox.isSelected() ? "true" : "false");
+			reader.putValue(config_section, tag, "if_create_hbm", hbmBox.isSelected() ? "true" : "false");
+			reader.putValue(config_section, tag, "if_create_service", serviceBox.isSelected() ? "true" : "false");
+			reader.putValue(config_section, tag, "if_create_controller", controllerBox.isSelected() ? "true" : "false");
+			reader.putValue(config_section, tag, "if_create_action", actionBox.isSelected() ? "true" : "false");
+
+			reader.putValue(config_section, tag, "service_package", serPackageText.getText());
+			reader.putValue(config_section, tag, "entity_package", entPackageText.getText());
+			reader.putValue(config_section, tag, "dao_package", daoPackageText.getText());
+			reader.putValue(config_section, tag, "map_package", mapPackageText.getText());
+			reader.putValue(config_section, tag, "hbm_package", hbmPackageText.getText());
+			reader.putValue(config_section, tag, "controller_package", cotPackageText.getText());
+			reader.putValue(config_section, tag, "action_package", actPackageText.getText());
+			reader.putValue(config_section, tag, "save_dir", saveDirText.getText());
+			reader.putValue(config_section, tag, "save_dir3", saveDirText3.getText());
+
+			reader.putValue(config_section, tag, "dao_frame", dbFrameCombo.getSelectedItem().toString());
+			reader.putValue(config_section, tag, "controll_frame", cFrameCombo.getSelectedItem().toString());
+			reader.save();
+		} catch (Exception e) {
+			Toolkit.getDefaultToolkit().beep();
+			JOptionPane.showMessageDialog(null, "操作异常：" + e.getMessage(), "提示", JOptionPane.ERROR_MESSAGE);
+		}
+	}
+
+	public void initTreeThread(int flag) {
+	    if(loadding){
+	        /*int count = dbNode.getChildCount();
+	        if(count > 0){
+	        }*/
+	        return;
+	    }
+		new Thread() {
+			public void run() {
+			    loadding = true;
+			    MainWindow.mainWindow.showProcessPanel();
+				initTree();
+				MainWindow.mainWindow.hideProcessPanel();
+				loadding = false;
+			}
+		}.start();
+	}
+
+	public void initTree() {
+
+		// 创建没有父节点和子节点、但允许有子节点的树节点，并使用指定的用户对象对它进行初始化。
+		// public DefaultMutableTreeNode(Object TreeObject)
+		if (jScrollPane1 != null) {
+		    jScrollPane1.removeAll();
+		    this.remove(jScrollPane1);
+		}
+
+		List<DbTable> data = getDbTable();
+		int tableSize = -1;
+		if (data != null) {
+			tableSize = data.size();
+		}
+
+		dbNode = new DefaultMutableTreeNode(new User(DBHelper.schema));
+
+		DbTable table = null;
+		DefaultMutableTreeNode node1 = null;
+		for (int i = 0; i < tableSize; i++) {
+			table = data.get(i);
+			node1 = new DefaultMutableTreeNode(new User(table.getTableName()));
+			dbNode.add(node1);
+		}
+
+		tree = new JTree(dbNode);
+
+		jScrollPane1 = new JScrollPane();
+		jScrollPane1.getViewport().add(tree);
+		jScrollPane1.setBounds(5, 5, 290, height - 45);
+		this.add(jScrollPane1);
+
+		// 添加选择事件
+		tree.addTreeSelectionListener(new JTreeSelectionListener());
+
+		if (tableSize > 0) {
+			new Thread(new LoadColumnThread()).start();
+		} else if (tableSize == -1) {
+			new Thread(new AlertThread()).start();
+		}
+	}
+
+	class JTreeSelectionListener implements TreeSelectionListener {
+		public void valueChanged(TreeSelectionEvent e) {
+			DefaultMutableTreeNode node = (DefaultMutableTreeNode) tree.getLastSelectedPathComponent();
+			if (node == null)
+				return;
+			int count = node.getChildCount();
+			Object object = node.getUserObject();
+			if (object != null) { // node.isLeaf() //node.isRoot()
+				User User = (User) object;
+				if (User != null) {
+					String table = User.toString();
+					int level = node.getLevel();
+					if (level == 0) { // 数据库层
+						chooseTable = null;
+						seekTableDataBtn.setEnabled(false);
+						mutilCreateBtn.setEnabled(true);
+						singleCreateBtn.setEnabled(false);
+						customBtn.setEnabled(true);
+						entityNameText.setEditable(false);
+						entityNameText.setText("");
+						setCompTooltip();
+						if (count == 0) {
+							initTreeThread(1);
+						}
+					} else if (level == 1) { // 表层
+						int selnum = tree.getSelectionCount();
+						chooseTable = table;
+						seekTableDataBtn.setEnabled(selnum == 1);
+						mutilCreateBtn.setEnabled(true);
+						singleCreateBtn.setEnabled(true);
+						customBtn.setEnabled(false);
+						entityNameText.setText(Utililies.tableToEntity(table));
+						setCompTooltip();
+						if (count == 0) {
+							initTableFeild(node, table);
+						}
+					} else if (level == 2) { // 字段层
+						int selnum = tree.getSelectionCount();
+						chooseTable = table;
+						seekTableDataBtn.setEnabled(selnum == 1);
+						mutilCreateBtn.setEnabled(true);
+						singleCreateBtn.setEnabled(true);
+						customBtn.setEnabled(false);
+						DefaultMutableTreeNode parent = (DefaultMutableTreeNode) node.getParent();
+						entityNameText.setText(Utililies.tableToEntity(parent.getUserObject().toString()));
+					}
+				}
+			}
+		}
+	}
+
+	public void renderTableFeild(DefaultMutableTreeNode top, String table, List<?> columns) {
+		if (DBHelper.sections.equals(MySqlSetPanel.sections)) {
+			if (columns != null) {
+				MysqlDbColumn colum = null;
+				DefaultMutableTreeNode node1 = null;
+				String title = "";
+				Vector<Object> vector = new Vector<Object>();
+				for (int i = 0, k = columns.size(); i < k; i++) {
+					colum = (MysqlDbColumn) columns.get(i);
+					title = colum.getColumnName() + " - " + colum.getColumnType();
+					node1 = new DefaultMutableTreeNode(new User(title));
+					top.add(node1);
+					vector.add(colum.getColumnName());
+				}
+				if (!columnMap.containsKey(table)) {
+					columnMap.put(table, vector);
+				}
+			}
+		}
+	}
+
+	public void initTableFeild(DefaultMutableTreeNode top, String table) {
+		if (DBHelper.sections.equals(MySqlSetPanel.sections)) {
+			List<MysqlDbColumn> columns = (List<MysqlDbColumn>) getTableColumn(table);
+			if (columns != null) {
+				MysqlDbColumn colum = null;
+				DefaultMutableTreeNode node1 = null;
+				String title = "";
+				Vector<Object> vector = new Vector<Object>();
+				// String[] column = new String[columns.size()];
+				for (int i = 0, k = columns.size(); i < k; i++) {
+					colum = columns.get(i);
+					title = colum.getColumnName() + " - " + colum.getColumnType();
+					node1 = new DefaultMutableTreeNode(new User(title));
+					top.add(node1);
+					// column[i] = colum.getColumnName();
+					vector.add(colum.getColumnName());
+				}
+				if (!columnMap.containsKey(table)) {
+					columnMap.put(table, vector);
+				}
+			}
+		}
+	}
+
+	class LoadColumnThread implements Runnable {
+
+		public void run() {
+			Map<String, List<DbTableColumn>> tabelMap = getTableColumn();
+			if (tabelMap != null) {
+				DbCache.mysqlDbColumnMap = tabelMap;
+				List<?> comulnList = null;
+				int size = dbNode.getChildCount();
+				DefaultMutableTreeNode node;
+				TreePath tpath = null;
+				User user = null;
+				for (int i = 0; i < size; i++) {
+					node = (DefaultMutableTreeNode) dbNode.getChildAt(i);
+					user = (User) node.getUserObject();
+					if (user != null) {
+						comulnList = tabelMap.get(user.toString());
+						if (comulnList != null) {
+							renderTableFeild(node, user.toString(), comulnList);
+						}
+					}
+					tpath = new TreePath(node);
+					tree.expandPath(tpath);
+					tree.collapsePath(tpath);
+				}
+			}
+			JScrollBar sBar = jScrollPane1.getVerticalScrollBar(); // 得到JScrollPane中的JScrollBar
+			sBar.setValue(sBar.getMaximum()); // 设置JScrollBar的位置到最后
+			sBar.setValue(sBar.getMinimum()); // 设置JScrollBar的位置到最前
+		}
+
+	}
+
+	public void setCompTooltip() {
+		changeTips("entityPackage", entPackageText.getText());
+		changeTips("daoPackage", daoPackageText.getText());
+		changeTips("mapPackage", mapPackageText.getText());
+		changeTips("hbmPackage", hbmPackageText.getText());
+		changeTips("serPackage", serPackageText.getText());
+		changeTips("actPackage", actPackageText.getText());
+		changeTips("cotPackage", cotPackageText.getText());
+	}
+
+	public void changeTips(String name, String value) {
+		String addImpl = "";
+		if(apiImplBox.isSelected()){
+			addImpl = "impl.";
+		}
+		
+		String entity = entityNameText.getText();
+		if (entity == null || entity.length() < 1) {
+			entityNameText2.setEditable(true);
+			packageBox.setEnabled(true);
+//			packageBox.setSelected(true);
+			entity = entityNameText2.getText();//获取自定义的名字
+			if(entity != null && entity.length() > 0 && packageBox.isSelected()){//如果自定义不为空,根据名字修改对应的包名字
+				entPackageText.setText(replaceParentPackageName(entPackageText.getText(),entity));
+				daoPackageText.setText(replaceParentPackageName(daoPackageText.getText(),entity));
+				mapPackageText.setText(replaceParentPackageName(mapPackageText.getText(),entity));
+				hbmPackageText.setText(replaceParentPackageName(hbmPackageText.getText(),entity));
+				serPackageText.setText(replaceParentPackageName(serPackageText.getText(),entity));
+				actPackageText.setText(replaceParentPackageName(actPackageText.getText(),entity));
+				cotPackageText.setText(replaceParentPackageName(cotPackageText.getText(),entity));
+			}
+		}else{
+			entityNameText2.setText("");
+			entityNameText2.setEditable(false);
+			packageBox.setEnabled(false);
+			packageBox.setSelected(false);
+		}
+		
+		if (name.equals("entityPackage")) {
+			entityNameText.setToolTipText(value + "." + entity + ".java");
+		} else if (name.equals("daoPackage")) {
+			daoBox.setToolTipText(value + "." + addImpl + entity + "Dao.java");
+		} else if (name.equals("mapPackage")) {
+			mapBox.setToolTipText(value + "." + addImpl + entity + "Mapper.xml");
+		} else if (name.equals("hbmPackage")) {
+			hbmBox.setToolTipText(value + "." + addImpl + entity + ".hbm.xml");
+		} else if (name.equals("serPackage")) {
+			serviceBox.setToolTipText(value + "." + addImpl + entity + "Service.java");
+		} else if (name.equals("actPackage")) {
+			actionBox.setToolTipText(value + "." + entity + "Action.java");
+		} else if(name.equals("cotPackage")){
+			controllerBox.setToolTipText(value + "." + entity + "Action.java");
+		}
+	}
+	
+	/*
+	 * 根据已知包名替换父包名字
+	 * 例如 com.roof.report.entity 替换为 com.roof.xx.entity
+	 * report.dao  替换为  xx.dao
+	 * */
+	private String replaceParentPackageName(String str,String value){
+		if(str != null && str.indexOf(".") != -1){//str不为null,并且str包含至少1个.
+			int endIndex = str.lastIndexOf(".");
+			int beginIndex = str.substring(0,endIndex).lastIndexOf(".")+1;
+			return str.substring(0, beginIndex) + 
+					value.substring(0,1).toLowerCase()+ value.substring(1) + 
+					str.substring(endIndex,str.length());
+		}else{
+			return str;
+		}
+	}
+
+	public void changeConfig(String tag) {
+		if (configInited) {
+			IniReader reader = IniReader.getIniReader();
+			reader.replaceActiveCfg(config_section, tag);
+			initValue(reader.getConfig(config_section, tag));
+		}
+	}
+
+	public void startCreate(int flag) {
+		List<String> tables = null;
+		if (flag == 0) {
+			tables = getAllTable(dbNode);
+		} else if (flag == 1) {
+			tables = getSelectedTable();
+		} else if (flag == 2) {
+			tables = new ArrayList<String>();
+		}
+
+		if (tables != null) {
+			CreAttr ca = getCreAttr(tables);
+			if (ca != null) {
+				new CreateThread(tables, ca).start();
+			}
+		}
+	}
+
+	public CreAttr getCreAttr(List<String> tables) {
+		CreAttr ca = new CreAttr();
+		String entityName = "{EntityName}", maven = "";
+		
+		/*add*/
+		entityName = entityNameText2.getText();//获取自定义的名字
+		if (entityName == null || entityName.length() == 0) {
+			entityName = "{EntityName}";
+		}else{
+			entityName = CommonUtils.firstCharToUpperCase(entityName);
+		}
+		
+		String entPackage = entPackageText.getText();
+		if(entPackage.startsWith("main.java.")){
+		    maven = "main/java/";
+		}
+		ca.setEntityName(entityName);
+		ca.setEntityPackage(Utililies.getRealPackage(entPackageText.getText()) + "." + entityName);
+		ca.setEntityFilePath(Utililies.packageToDir(Utililies.getRealPackage(entPackageText.getText()) + "/") + entityName + ".java");
+		
+		String addImplStr1 = "";
+		String addImplStr2 = "";
+		String addApiStr1 = "";
+		String addApiStr2 = "";
+		if(apiImplBox.isSelected()){
+			addImplStr1 = ".impl";
+			addImplStr2 = "/impl";
+			addApiStr1 = ".api";
+			addApiStr2 = "/api";
+		}
+		
+		if (daoBox.isSelected()) {
+			ca.setDaoName(entityName + "Dao");
+			ca.setIdaoName("I"+entityName + "Dao");
+			ca.setDaoPackage(Utililies.getRealPackage(daoPackageText.getText()) + addImplStr1 + "." + ca.getDaoName());
+			ca.setIdaoPackage(Utililies.getRealPackage(daoPackageText.getText()) + addApiStr1 + "." + ca.getIdaoName());
+			ca.setDaoFilePath(Utililies.packageToDir(Utililies.getRealPackage(daoPackageText.getText()) + addImplStr2 + "/") + ca.getDaoName() + ".java");
+			ca.setIdaoFilePath(Utililies.packageToDir(Utililies.getRealPackage(daoPackageText.getText()) + addApiStr2 + "/") + ca.getIdaoName() + ".java");
+		}
+		if (serviceBox.isSelected()) {
+			ca.setServiceName(entityName + "Service");
+			ca.setIserviceName("I" + entityName + "Service");
+			ca.setServicePackage(Utililies.getRealPackage(serPackageText.getText()) + addImplStr1 + "." + ca.getServiceName());
+			ca.setIservicePackage(Utililies.getRealPackage(serPackageText.getText()) + addApiStr1 + "." + ca.getIserviceName());
+			ca.setServiceFilePath(Utililies.packageToDir(Utililies.getRealPackage(serPackageText.getText()) + addImplStr2 + "/") + ca.getServiceName() + ".java");
+			ca.setIserviceFilePath(Utililies.packageToDir(Utililies.getRealPackage(serPackageText.getText()) + addApiStr2 + "/") + ca.getIserviceName() + ".java");
+		}
+		if (mapBox.isSelected()) {
+			ca.setMapName(entityName + "_base_mapper");
+			ca.setMapPackage(Utililies.getRealPackage(mapPackageText.getText()) + addImplStr1 + "." + ca.getMapName());
+			ca.setMapFilePath(Utililies.packageToDir(Utililies.getRealPackage(mapPackageText.getText()) + addImplStr2 + "/") + ca.getMapName() + ".xml");
+		}
+		if (hbmBox.isSelected()) {
+			ca.setHbmName(entityName + ".hbm");
+			ca.setHbmPackage(Utililies.getRealPackage(hbmPackageText.getText()));
+			ca.setHbmFilePath(Utililies.packageToDir(Utililies.getRealPackage(hbmPackageText.getText()) + "/") + ca.getHbmName() + ".xml");
+		}
+		if (controllerBox.isSelected()) {
+//			ca.setControllerName(entityName + "Controller");
+			ca.setControllerName(entityName + "Action");
+			ca.setControllerPackage(Utililies.getRealPackage(cotPackageText.getText()) + "." + ca.getControllerName());
+			ca.setControllerFilePath(Utililies.packageToDir(Utililies.getRealPackage(cotPackageText.getText()) + "/") + ca.getControllerName() + ".java");
+		}
+		if (actionBox.isSelected()) {
+			ca.setActionName(entityName + "Action");
+			ca.setActionPackage(Utililies.getRealPackage(actPackageText.getText()) + "." + ca.getActionName());
+			ca.setActionFilePath(Utililies.packageToDir(Utililies.getRealPackage(actPackageText.getText()) + "/") + ca.getActionName() + ".java");
+		}
+		ca.setDaoFrame(dbFrameCombo.getSelectedItem().toString());
+		ca.setConFrame(cFrameCombo.getSelectedItem().toString());
+		ca.setSaveDir(CommonUtils.isBlank(saveDirText.getText()) ? "d:/code/" : saveDirText.getText() + maven);
+		ca.setSaveDir2(CommonUtils.isBlank(saveDirText.getText()) ? "d:/code/" : saveDirText.getText());
+		
+		if(webBox.isSelected()){
+			ca.setSaveDir3(CommonUtils.isBlank(saveDirText3.getText()) ? "d:/code/" : saveDirText3.getText());
+		}
+		return ca;
+	}
+
+	// 获取所有表
+	public List<String> getAllTable(DefaultMutableTreeNode node) {
+		List<String> tableList = new ArrayList<String>();
+		Enumeration<DefaultMutableTreeNode> children = node.children();
+		User user = null;
+		while (children.hasMoreElements()) {
+			DefaultMutableTreeNode child = children.nextElement();
+			if (!child.isLeaf()) { // 是否叶子节点
+				if (child.getLevel() == 1) { // 表
+					user = (User) child.getUserObject();
+					if (user != null) {
+						tableList.add(user.toString());
+					}
+				}
+			}
+		}
+		return tableList;
+	}
+
+	// 获取所有选中的表
+	public List<String> getSelectedTable() {
+		List<String> tableList = new ArrayList<String>();
+		TreePath[] treePaths = tree.getSelectionPaths();
+		if (treePaths != null) {
+			DefaultMutableTreeNode node = null;
+			User user = null;
+			for (int i = 0; i < treePaths.length; i++) {
+				node = (DefaultMutableTreeNode) treePaths[i].getLastPathComponent();
+				if (node != null) {
+					if (node.getLevel() == 1) { // 表
+						user = (User) node.getUserObject();
+						if (user != null) {
+							tableList.add(user.toString());
+						}
+					}
+				}
+			}
+		}
+		return tableList;
+	}
+
+	class AlertThread implements Runnable {
+		public void run() {
+			try {
+				Thread.sleep(500);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+			JOptionPane.showMessageDialog(null, "未检测到有效配置，数据库表加载失败", "提示", JOptionPane.ERROR_MESSAGE);
+		}
+	}
+
+	private class ComboItemListener implements ItemListener {
+		public void itemStateChanged(ItemEvent e) {
+			if (e.getStateChange() == ItemEvent.SELECTED) {
+				String fname = e.getItem().toString();
+				if (fname.equals("Hibernate")) {
+					mapBox.setSelected(false);
+					mapBox.setVisible(false);
+					mapPackageText.setVisible(false);
+					hbmBox.setSelected(true);
+					hbmBox.setVisible(true);
+					hbmPackageText.setVisible(true);
+				} else if (fname.equals("Mybatis")) {
+					hbmBox.setSelected(false);
+					hbmBox.setVisible(false);
+					hbmPackageText.setVisible(false);
+					mapBox.setSelected(true);
+					mapBox.setVisible(true);
+					mapPackageText.setVisible(true);
+				} else if (fname.equals("Struts2")) {
+					actionBox.setVisible(true);
+					actionBox.setSelected(true);
+					actPackageText.setVisible(true);
+					controllerBox.setSelected(false);
+					controllerBox.setVisible(false);
+					cotPackageText.setVisible(false);
+				} else if (fname.equals("SpringMVC")) {
+					controllerBox.setVisible(true);
+					controllerBox.setSelected(true);
+					cotPackageText.setVisible(true);
+					actionBox.setVisible(false);
+					actionBox.setEnabled(false);
+					actPackageText.setVisible(false);
+				} else { // 配置方案更改
+					changeConfig(fname);
+				}
+			}
+		}
+	}
+
+	class InputKeyListener implements KeyListener {
+		public void keyTyped(KeyEvent e) { // 按下
+
+		}
+
+		public void keyPressed(KeyEvent e) {
+		}
+
+		public void keyReleased(KeyEvent e) { // 放开
+			JTextField textFeild = (JTextField) e.getComponent();
+			String name = textFeild.getName();
+			changeTips(name, textFeild.getText());
+		}
+	}
+
+	class BoxActionListener implements ActionListener {
+		public void actionPerformed(ActionEvent e) {
+			JCheckBox box = (JCheckBox) e.getSource();
+			String name = box.getText();
+			System.out.println(name);
+			if (name.equals("生成Dao接口/类")) {
+				daoPackageText.setEnabled(box.isSelected());
+//				daoPackageText.setText("");
+			} else if (name.equals("生成Mapper.xml")) {
+				mapPackageText.setEnabled(box.isSelected());
+//				mapPackageText.setText("");
+			} else if (name.equals("生成Service接口/类")) {
+				serPackageText.setEnabled(box.isSelected());
+//				serPackageText.setText("");
+			} else if (name.equals("生成Hbm.xml")) {
+				mapPackageText.setEnabled(box.isSelected());
+//				mapPackageText.setText("");
+			} else if (name.equals("生成Controller类")) {
+				actPackageText.setEnabled(box.isSelected());
+//				actPackageText.setText("");
+			} else if (name.equals("生成Action类")) {
+				actPackageText.setEnabled(box.isSelected());
+//				actPackageText.setText("");
+			} else if (name.equals("生成web页面")) {
+				chooseDirBtn3.setEnabled(box.isSelected());
+				saveDirText3.setEnabled(box.isSelected());
+			} else if (name.equals("生成api/impl路径")) {
+				setCompTooltip();
+			}
+		}
+	}
+
+	class BtnActionListener implements ActionListener {
+		public void actionPerformed(ActionEvent e) {
+			String comm = e.getActionCommand();
+			System.out.println(comm);
+			if (comm.equals("查看表数据")) {
+				MainWindow.mainWindow.showTableDataPanel(chooseTable);
+			} else if (comm.equals("生成全部表")) {
+				startCreate(0);
+			} else if (comm.equals("生成选择的表")) {
+				System.out.println("in....");
+				startCreate(1);
+			}  else if (comm.equals("生成自定义表")) {
+				startCreate(2);
+			} else if (comm.equals("保存")) {
+				saveConfig(1);
+			} else if (comm.equals("另存为")) {
+				saveConfig(2);
+			} else if (comm.equals("选择src位置")) {
+				String dir = saveDirText.getText();
+				if(CommonUtils.isBlank(dir)){
+					jfc.setCurrentDirectory(new File("d://"));// 文件选择器的初始目录定为d盘 
+				} else {
+					jfc.setCurrentDirectory(new File(dir));
+				}
+				jfc.setFileSelectionMode(1);// 设定只能选择到文件夹  
+		        int state = jfc.showOpenDialog(null);// 此句是打开文件选择器界面的触发语句  
+		        if (state == 1) {  
+		            return;  
+		        } else {  
+		            File f = jfc.getSelectedFile();// f为选择到的目录  
+		            String path = f.getAbsolutePath();
+		            saveDirText.setText(path.replaceAll("\\\\", "/") + "/");  
+		        }
+			} else if (comm.equals("选择web页面位置")) {
+				String dir = saveDirText3.getText();
+				if(CommonUtils.isBlank(dir)){
+					jfc.setCurrentDirectory(new File("d://"));// 文件选择器的初始目录定为d盘 
+				} else {
+					jfc.setCurrentDirectory(new File(dir));
+				}
+				jfc.setFileSelectionMode(1);// 设定只能选择到文件夹  
+		        int state = jfc.showOpenDialog(null);// 此句是打开文件选择器界面的触发语句  
+		        if (state == 1) {  
+		            return;  
+		        } else {  
+		            File f = jfc.getSelectedFile();// f为选择到的目录  
+		            String path = f.getAbsolutePath();
+		            saveDirText3.setText(path.replaceAll("\\\\", "/") + "/");  
+		        }
+			}
+		}
+	}
+
+	class User {
+		private String name;
+
+		public User(String n) {
+			name = n;
+		}
+
+		public String toString() {
+			return name;
+		}
+	}
+
+}

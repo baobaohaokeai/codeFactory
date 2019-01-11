@@ -1,0 +1,74 @@
+
+/*初始化入口*/
+
+var startTime;
+var endTime;
+var c3;
+var c4;
+
+$(function() {
+	initJqGrid.init();
+	loadCommonTime();//加载开始/结束时间
+	loadAreaCompany();//加载c3
+	loadCountyCompany();//加载c4
+	query();
+});
+
+/* 查询数据 */
+function query() {
+	startTime = formattime($('#startTime').val());
+	endTime = formattime($('#endTime').val());
+	c3 = $('#c3 option:selected').text();
+	c4 = $('#c4 option:selected').text();
+	
+	if( validate(startTime,endTime) ){
+		$.ajax({
+			type : "POST",
+			async : true,
+			url : ROOF.Utils.projectName() + '/{EntityNameLower}Action/get.action', // 这是数据的请求地址
+			data : {
+				startTime : startTime,
+				endTime : endTime,
+				c3 : c3,
+				c4 : c4
+			},
+			dataType : "json",
+			success : function(data) {
+				// 处理jqgrid
+				loadJqGrid(data);
+			},
+			error : function(err) {
+				console.log(err);
+			}
+		});		
+	}
+}
+
+/* 加载jqgrid */
+function loadJqGrid(data) {
+	$("#con_grid_div_grid_1").clearGridData();
+	$("#con_grid_div_grid_1").jqGrid('setGridParam', {
+		datatype : 'local',
+		data : data,
+	}).trigger("reloadGrid");
+}
+
+/*导出*/
+function toExcel() {
+	var formAction = ROOF.Utils.projectName() + '/{EntityNameLower}Action/toExcel.action';
+	
+	//加入查询条件
+	var inputNameArray = ['startTime','endTime','c3','c4'];
+	var inputValArray = [startTime,endTime,c3,c4];
+	
+	/*加入报表名字*/
+	inputNameArray.push('baseReportName');
+	inputValArray.push('CRM订单受理汇总表');
+	
+	/*加入模板名字(可包含路径,不包括顶级/template路径)*/
+	inputNameArray.push('baseReportTemplatePath');
+	inputValArray.push('/crm/template_summary');
+	
+	toExcelCommon(formAction,inputNameArray,inputValArray);
+}
+

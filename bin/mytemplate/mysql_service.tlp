@@ -1,0 +1,22 @@
+
+package {ServicePackage};
+
+import java.util.List;
+
+import org.roof.report.common.entity.Condition;
+import {IDaoPackage}.{IDaoName};
+import {IServicePackage}.{IServiceName};
+import {EntityPackage}.{EntityName};
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+@Service
+public class {ServiceName} implements {IServiceName}{
+	@Autowired
+	private {IDaoName} dao;
+	
+	public  List<{EntityName}> get(Condition condition){
+		return dao.get(condition);	
+	}
+	
+}

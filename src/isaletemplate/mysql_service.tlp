@@ -1,0 +1,24 @@
+
+package {ServicePackage};
+
+import java.util.List;
+
+import org.roof.report.crm.entity.CrmCondition;
+import {IDaoPackage}.{IDaoName};
+import {IServicePackage}.{IServiceName};
+import {EntityPackage}.{EntityName};
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+@Service
+@Transactional
+public class {ServiceName} implements {IServiceName}{
+	@Autowired
+	private {IDaoName} dao;
+	
+	public  List<{EntityName}> get(CrmCondition condition){
+		return dao.get(condition);	
+	}
+	
+}

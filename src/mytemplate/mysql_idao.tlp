@@ -1,0 +1,13 @@
+package {IDaoPackage};
+
+import java.util.List;
+
+import org.roof.report.common.entity.Condition;
+import {EntityPackage}.{EntityName};
+
+
+public interface {IDaoName} {
+
+	public  List<{EntityName}> get(Condition condition);
+	
+}

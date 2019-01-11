@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="{DaoPackage}">
+	<resultMap type="java.util.HashMap" id="resultMap" >
+       <result column="col0" property="col0" jdbcType="VARCHAR"  javaType="java.lang.String" />
+       <result column="col1" property="col1" jdbcType="VARCHAR"  javaType="java.lang.String" />
+       <result column="col2" property="col2" jdbcType="VARCHAR" javaType="java.lang.String" />
+       <result column="col3" property="col3" jdbcType="VARCHAR" javaType="java.lang.String" />
+       <result column="col4" property="col4" jdbcType="VARCHAR" javaType="java.lang.String" />
+       <result column="col5" property="col5" jdbcType="VARCHAR" javaType="java.lang.String" />
+       <result column="col6" property="col6" jdbcType="VARCHAR" javaType="java.lang.String" />
+       <result column="col7" property="col7" jdbcType="VARCHAR" javaType="java.lang.String" />
+       <result column="col8" property="col8" jdbcType="VARCHAR" javaType="java.lang.String" />
+       <result column="col9" property="col9" jdbcType="VARCHAR" javaType="java.lang.String" />
+       <result column="col10" property="col10" jdbcType="VARCHAR" javaType="java.lang.String" />
+       <result column="col11" property="col11" jdbcType="VARCHAR" javaType="java.lang.String" />
+       <result column="col12" property="col12" jdbcType="VARCHAR" javaType="java.lang.String" />
+       <result column="col13" property="col13" jdbcType="VARCHAR" javaType="java.lang.String" />
+       <result column="col14" property="col14" jdbcType="VARCHAR" javaType="java.lang.String" />
+       <result column="col15" property="col15" jdbcType="VARCHAR" javaType="java.lang.String" />
+       <result column="col16" property="col16" jdbcType="VARCHAR" javaType="java.lang.String" />
+       <result column="col17" property="col17" jdbcType="VARCHAR" javaType="java.lang.String" />
+       <result column="col18" property="col18" jdbcType="VARCHAR" javaType="java.lang.String" />
+       <result column="col19" property="col19" jdbcType="VARCHAR" javaType="java.lang.String" />
+       <result column="col20" property="col20" jdbcType="VARCHAR" javaType="java.lang.String" />
+       <result column="col21" property="col21" jdbcType="VARCHAR" javaType="java.lang.String" />
+       <result column="col22" property="col22" jdbcType="VARCHAR" javaType="java.lang.String" />
+       <result column="col23" property="col23" jdbcType="VARCHAR" javaType="java.lang.String" />
+       <result column="col24" property="col24" jdbcType="VARCHAR" javaType="java.lang.String" />
+       <result column="col25" property="col25" jdbcType="VARCHAR" javaType="java.lang.String" />
+       <result column="col26" property="col26" jdbcType="VARCHAR" javaType="java.lang.String" />
+       <result column="col27" property="col27" jdbcType="VARCHAR" javaType="java.lang.String" />
+       <result column="col28" property="col28" jdbcType="VARCHAR" javaType="java.lang.String" />
+       <result column="col29" property="col29" jdbcType="VARCHAR" javaType="java.lang.String" />
+       <result column="col30" property="col30" jdbcType="VARCHAR" javaType="java.lang.String" />
+       <result column="col31" property="col31" jdbcType="VARCHAR" javaType="java.lang.String" />
+       <result column="col32" property="col32" jdbcType="VARCHAR" javaType="java.lang.String" />
+       <result column="col33" property="col33" jdbcType="VARCHAR" javaType="java.lang.String" />
+       <result column="col34" property="col34" jdbcType="VARCHAR" javaType="java.lang.String" />
+       <result column="col35" property="col35" jdbcType="VARCHAR" javaType="java.lang.String" />
+       <result column="col36" property="col36" jdbcType="VARCHAR" javaType="java.lang.String" />
+       <result column="col37" property="col37" jdbcType="VARCHAR" javaType="java.lang.String" />
+       <result column="col38" property="col38" jdbcType="VARCHAR" javaType="java.lang.String" />
+       <result column="col39" property="col39" jdbcType="VARCHAR" javaType="java.lang.String" />
+       <result column="col40" property="col40" jdbcType="VARCHAR" javaType="java.lang.String" />
+       <result column="col41" property="col41" jdbcType="VARCHAR" javaType="java.lang.String" />
+       <result column="col42" property="col42" jdbcType="VARCHAR" javaType="java.lang.String" />
+       <result column="col43" property="col43" jdbcType="VARCHAR" javaType="java.lang.String" />
+       <result column="col44" property="col44" jdbcType="VARCHAR" javaType="java.lang.String" />
+       <result column="col45" property="col45" jdbcType="VARCHAR" javaType="java.lang.String" />
+       <result column="col46" property="col46" jdbcType="VARCHAR" javaType="java.lang.String" />
+       <result column="col47" property="col47" jdbcType="VARCHAR" javaType="java.lang.String" />
+       <result column="col48" property="col48" jdbcType="VARCHAR" javaType="java.lang.String" />
+       <result column="col49" property="col49" jdbcType="VARCHAR" javaType="java.lang.String" />
+    </resultMap>
+    
+    <parameterMap id="paramMap" type="java.util.HashMap">  
+	    <parameter property="reportNumber" mode="IN" jdbcType="DOUBLE" javaType="java.lang.Double" />  
+	    <parameter property="startDate" mode="IN" jdbcType="DATE" javaType="java.util.Date"/>  
+	    <parameter property="endDate" mode="IN" jdbcType="DATE" javaType="java.util.Date"/>  
+	    <parameter property="timeType" mode="IN" jdbcType="VARCHAR" javaType="java.lang.String"/>  
+	    <parameter property="bussinessType" mode="IN" jdbcType="VARCHAR" javaType="java.lang.String"/>  
+	    <parameter property="operateType" mode="IN" jdbcType="VARCHAR" javaType="java.lang.String"/>  
+	    <parameter property="c4" mode="IN" jdbcType="VARCHAR" javaType="java.lang.String"/>  
+	    <parameter property="bussinessDept" mode="IN" jdbcType="VARCHAR" javaType="java.lang.String"/>  
+	    <parameter property="yyt" mode="IN" jdbcType="VARCHAR" javaType="java.lang.String"/>  
+	    <parameter property="yyyNumber" mode="IN" jdbcType="VARCHAR" javaType="java.lang.String"/>  
+	    <parameter property="customerProp" mode="IN" jdbcType="VARCHAR" javaType="java.lang.String"/>  
+	    <parameter property="marketServiceType" mode="IN" jdbcType="VARCHAR" javaType="java.lang.String"/>  
+	    <parameter property="itemState" mode="IN" jdbcType="VARCHAR" javaType="java.lang.String"/>  
+	    <parameter property="autoOrderState" mode="IN" jdbcType="VARCHAR" javaType="java.lang.String"/>  
+	    <parameter property="userName" mode="IN" jdbcType="VARCHAR" javaType="java.lang.String"/>  
+	    <parameter property="returnType" mode="OUT" jdbcType="DOUBLE" javaType="java.lang.Double" />  
+	    <parameter property="result" mode="OUT" jdbcType="CURSOR" javaType="java.sql.ResultSet" resultMap="resultMap"/>   
+	</parameterMap>  
+    
+	<select id="get"  parameterMap="paramMap" resultType="java.util.Map" statementType="CALLABLE" >
+	   	<![CDATA[  
+	   		call RPPR_SELECT.Pkg_Crm_Rpt_A15.Sp_Crm_Rpt_A15(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+	   	]]>
+	</select>
+	
+</mapper>

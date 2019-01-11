@@ -1,0 +1,36 @@
+package {DaoPackage};
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.annotation.Resource;
+
+import org.apache.ibatis.session.SqlSession;
+import org.roof.report.common.util.ReportCommonUtils;
+import org.roof.report.crm.entity.CrmCondition;
+import {EntityPackage}.{EntityName};
+import {IDaoPackage}.{IDaoName};
+import org.springframework.stereotype.Repository;
+
+@Repository
+public class {DaoName} implements {IDaoName}{
+	@Resource(name="sqlSessionTemplate")
+	private SqlSession sqlSession;
+	
+	@SuppressWarnings("unchecked")
+	public  List<{EntityName}> get(CrmCondition con){
+		List<{EntityName}> report = new ArrayList<{EntityName}>();
+		Map<String, Object> param = ReportCommonUtils.transBean2Map(con);
+		
+		sqlSession.selectOne("{DaoPackage}.get", param);
+		
+		Double returnType = (Double)param.get("returnType");
+		if(returnType == 0){
+			report = (List<{EntityName}>) param.get("result");			
+		}
+		return report;
+	}
+	
+}

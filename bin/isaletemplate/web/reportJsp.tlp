@@ -1,0 +1,68 @@
+
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+ 
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<%@ include file="/roof-web/report/common/base.jsp"%>
+
+<script src="${basePath}/roof-web/report/crm/{EntityNameLower}/report.js" type="text/javascript" language="javascript"/></script>
+<script src="${basePath}/roof-web/report/crm/{EntityNameLower}/initJqGrid.js" type="text/javascript" language="javascript"/></script>
+
+<title>CRM订单受理汇总表</title>
+</head>
+<body style="padding:5px;">
+	<!-- header -->
+	<div style="text-align: center;"><h2>CRM订单受理汇总表</h2></div>
+	
+	<!-- conditions -->
+	<div style="padding:10px">
+		<table border="0" cellpadding="0" cellspacing="1" class="ui-table" width="100%">
+			<tbody>
+				<tr>
+					<td class="ui-table-header2" style="text-align: center;">开始时间</td>
+					<td width="15%"><input type="text" id="startTime" class="laydate-icon" style="width:80%;" value=""/></td>
+					
+					<td class="ui-table-header2" style="text-align: center;">结束时间</td>
+					<td width="15%" colspan="3"><input type="text" id="endTime" class="laydate-icon" style="width:80%;" value=""/></td>
+					
+					<td class="ui-table-header2" style="text-align: center;">请选择地市公司</td>
+					<td width="15%">
+						<select id="c3" style="width:170px;margin-right:20px;" onchange="loadCountyCompany();">
+							
+						</select>
+					</td>
+					
+					<td class="ui-table-header2" style="text-align: center;">请选择区县公司</td>
+					<td width="15%">
+						<select id="c4"  style="width:170px;margin-right:20px;" onchange="">
+							
+						</select>
+					</td>
+				</tr>
+				<tr>
+
+				</tr>
+			</tbody>
+		</table>
+	</div>
+	
+	<div>
+		<input type ="button" id="query" value="查询" style="margin-right:20px;" onclick="query();"/>
+		<input type="button" value="导出" onclick="toExcel();" />
+	</div>
+	
+	<div id="content" >
+		<div id= "grid_div" style="padding:10px;">
+			<div id="con_grid_div_1" style="">
+				<table id="con_grid_div_grid_1"></table>
+				<div id="con_grid_div_gridPager_1"></div>
+			</div>
+			<div style="clear:both;"></div>
+			
+		</div>
+	</div>
+</body>
+</html>

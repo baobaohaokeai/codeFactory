@@ -1,0 +1,11 @@
+package {EntityPackage};
+
+import java.io.Serializable;
+
+import org.roof.report.common.entity.BaseReport;
+
+public class {EntityName} extends BaseReport implements Serializable{
+
+
+
+}

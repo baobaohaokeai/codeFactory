@@ -1,0 +1,11 @@
+package {EntityPackage};
+
+import java.io.Serializable;
+
+import org.roof.report.crm.entity.CrmCondition;
+
+public class {EntityName} extends CrmCondition implements Serializable{
+
+
+
+}

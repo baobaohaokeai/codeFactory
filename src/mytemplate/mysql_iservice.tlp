@@ -1,0 +1,14 @@
+
+package {IServicePackage};
+
+import java.util.List;
+
+import org.roof.report.common.entity.Condition;
+import {EntityPackage}.{EntityName};
+
+
+public interface {IServiceName} {
+
+	public  List<{EntityName}> get(Condition condition);
+	
+}
